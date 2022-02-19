@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Now or Never Resource Optimizer</title>
+    <meta name="description" content="A web-based resource trade optimizer for Now or Never.">
+    <meta name="author" content="Seth Vargo">
+
+    <style type="text/css">
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body,
+      h1,
+      h2,
+      h3,
+      h4,
+      p,
+      figure,
+      blockquote,
+      dl,
+      dd {
+        margin: 0;
+      }
+
+      html:focus-within {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        min-height: 100vh;
+        text-rendering: optimizeSpeed;
+        line-height: 1.5;
+      }
+
+      a:not([class]) {
+        text-decoration-skip-ink: auto;
+      }
+
+      img,
+      picture {
+        max-width: 100%;
+        display: block;
+      }
+
+      input,
+      button,
+      textarea,
+      select {
+        font: inherit;
+      }
+
+      /* end reset */
+
+      html {
+        --icon-height: 35px;
+      }
+
+      body {
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 1em;
+        background-image: url('./assets/bg.svg');
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+
+        backdrop-filter: saturate(70%) sepia(30%) blur(3em);
+      }
+
+      input {
+        padding: 0.66em 0;
+        text-align: center;
+      }
+
+      .icon {
+        display: inline-block;
+        margin: 0.15em;
+      }
+
+      .icon-shell {
+        background-image: url('./assets/shell.svg');
+        background-repeat: no-repeat;
+        height: var(--icon-height);
+        width: calc((var(--icon-height) / 98 * 78));
+      }
+
+      .icon-tool {
+        background-image: url('./assets/tool.svg');
+        background-repeat: no-repeat;
+        height: var(--icon-height);
+        width: calc((var(--icon-height) / 100 * 76));
+      }
+
+      .icon-demon {
+        background-image: url('./assets/demon.svg');
+        background-repeat: no-repeat;
+        height: var(--icon-height);
+        width: calc((var(--icon-height) / 100 * 78));
+      }
+
+      .icon-crystal {
+        background-image: url('./assets/crystal.svg');
+        background-repeat: no-repeat;
+        height: var(--icon-height);
+        width: calc((var(--icon-height) / 100 * 60));
+      }
+
+      .icon-coin {
+        background-image: url('./assets/coin.svg');
+        background-repeat: no-repeat;
+        height: var(--icon-height);
+        width: var(--icon-height);
+        font-weight: bold;
+        font-size: 1.5em;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #optimalTradeValue {
+        font-weight: bold;
+        margin-bottom: 1em;
+      }
+
+      .outer {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-content: center;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .inner {
+        background: #cccecc;
+        border-radius: 0.5em;
+        padding: 0 1em;
+      }
+
+      .inner input {
+        border: 1px solid #aaa;
+        border-radius: 0.5em;
+        font-size: 2em;
+      }
+
+      .inner input[type=text] {
+        width: 4em;
+        margin-right: 1em;
+      }
+
+      .inner input[type=submit] {
+        width: 100%;
+      }
+
+      .inner input[type=submit]:hover {
+        background: #fff;
+      }
+
+      .inner input[type=submit]:active {
+        background: #aaa;
+      }
+
+      .inner .row {
+        display: flex;
+        flex-wrap: nowrap;
+        align-content: center;
+        justify-content: space-between;
+        align-items: center;
+        margin: 2em;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="outer">
+      <div class="inner">
+        <form id="form">
+          <div class="row">
+            <input type="text" name="s" placeholder="0">
+            <span class="icon icon-shell">
+          </div>
+          <div class="row">
+            <input type="text" name="t" placeholder="0">
+            <span class="icon icon-tool">
+          </div>
+          <div class="row">
+            <input type="text" name="d" placeholder="0">
+            <span class="icon icon-demon">
+          </div>
+          <div class="row">
+            <input type="text" name="c" placeholder="0">
+            <span class="icon icon-crystal">
+          </div>
+          <div class="row">
+            <input type="submit" value="Go!" />
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="answer"></div>
+
+    <script src="./assets/wasm_exec.js"></script>
+    <script>
+      if (!WebAssembly.instantiateStreaming) {
+        WebAssembly.instantiateStreaming = async (resp, importObject) => {
+          const source = await (await resp).arrayBuffer();
+          return await WebAssembly.instantiate(source, importObject);
+        }
+      }
+
+      const go = new Go();
+      WebAssembly.instantiateStreaming(fetch("./assets/optim.wasm"), go.importObject).then(async (result) => {
+        go.run(result.instance);
+        await main();
+      });
+
+      const main = async () => {
+        const form = document.querySelector('form#form');
+        const answer = document.querySelector('div#answer');
+
+        const toIcons = (alloc) => {
+          const list = [];
+          for(let i = 0; i < alloc.s; i++)
+            list.push(`<span class="icon icon-shell"></span>`);
+          for(let i = 0; i < alloc.t; i++)
+            list.push(`<span class="icon icon-tool"></span>`);
+          for(let i = 0; i < alloc.d; i++)
+            list.push(`<span class="icon icon-demon"></span>`);
+          for(let i = 0; i < alloc.c; i++)
+            list.push(`<span class="icon icon-crystal"></span>`);
+          return list.join('');
+        }
+
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          // Clear existing answer
+          answer.innerHTML = '';
+
+          const formData = {};
+          for(const pair of new FormData(e.target)) {
+            const val = pair[1];
+            if(val) {
+              formData[pair[0]] = parseInt(val);
+            }
+          }
+
+          if (Object.keys(formData).length === 0)
+            return;
+
+          try  {
+            const exchangeRates = JSON.parse(await rateTable())
+
+            const bestTrades = await bestTrade(JSON.stringify(formData))
+            const optimalTrades = JSON.parse(bestTrades);
+            if(optimalTrades.length < 1) {
+              throw new Error('No possible trades!')
+            }
+            const optimalTrade = optimalTrades[0];
+
+            answer.innerHTML = `
+              <div id="optimalTradeValue">Optimal trade: ${optimalTrade.V}</div>
+
+              <table border="0">
+                ${optimalTrade.R.map((alloc) => {
+                  return `
+                    <tr>
+                      <td align="right">${toIcons(alloc)}</td>
+                      <td>
+                        <span class="icon icon-coin">${exchangeRates[JSON.stringify(alloc)]}</span>
+                      </td>
+                    </tr>
+                  `
+                }).join('')}
+              </table>
+            `;
+          } catch(e) {
+            console.error(e);
+          }
+        })
+      }
+    </script>
+  </body>
+</html>

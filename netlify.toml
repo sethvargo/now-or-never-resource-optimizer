@@ -1,0 +1,25 @@
+[environment]
+  GO_VERSION = "1.17"
+
+[build]
+  publish = "public/"
+  command = "make wasm"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'"
+    Permissions-Policy = "camera=(), geolocation=(), microphone=(), payment=()"
+    Referrer-Policy = "no-referrer"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    Upgrade-Insecure-Requests = "1"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    X-Permitted-Cross-Domain-Policies = "none"
+    X-UA-Compatible = "IE=Edge,chrome=1"
+    X-XSS-Protection = "1; mode=block"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
