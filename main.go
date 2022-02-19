@@ -11,8 +11,6 @@ import (
 func main() {
 	js.Global().Set("rateTable", jsRateTable())
 	js.Global().Set("bestTrade", jsBestTrade2())
-
-	fmt.Println("Loaded wasm...")
 	<-make(chan struct{})
 }
 

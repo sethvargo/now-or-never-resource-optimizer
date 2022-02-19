@@ -3,12 +3,12 @@
 
 [build]
   publish = "public/"
-  command = "make wasm"
+  command = "make build"
 
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval'"
     Permissions-Policy = "camera=(), geolocation=(), microphone=(), payment=()"
     Referrer-Policy = "no-referrer"
     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"

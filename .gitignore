@@ -1,1 +1,2 @@
-public/
+public/assets/wasm_exec.js
+public/assets/*.wasm

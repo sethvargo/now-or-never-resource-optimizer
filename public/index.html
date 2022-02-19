@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <title>Now or Never Resource Optimizer</title>
+    <meta name="description" content="A web-based resource trade optimizer for Now or Never.">
+    <meta name="author" content="Seth Vargo">
+
+    <link rel="stylesheet" href="/assets/main.css">
+  </head>
+
+  <body>
+    <div class="outer">
+      <div class="inner">
+        <form id="form" method="POST">
+          <div class="row">
+            <input type="number" name="s" placeholder="0" min="0" max="99" inputmode="decimal">
+            <span class="icon icon-shell">
+          </div>
+          <div class="row">
+            <input type="number" name="t" placeholder="0" min="0" max="99" inputmode="decimal">
+            <span class="icon icon-tool">
+          </div>
+          <div class="row">
+            <input type="number" name="d" placeholder="0" min="0" max="99" inputmode="decimal">
+            <span class="icon icon-demon">
+          </div>
+          <div class="row">
+            <input type="number" name="c" placeholder="0" min="0" max="99" inputmode="decimal">
+            <span class="icon icon-crystal">
+          </div>
+          <div class="row">
+            <input type="submit" value="Go!" />
+          </div>
+        </form>
+
+        <div id="answer"></div>
+      </div>
+    </div>
+
+    <script src="/assets/wasm_exec.js"></script>
+    <script src="/assets/main.js"> </script>
+  </body>
+</html>
