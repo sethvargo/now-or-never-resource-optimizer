@@ -1,3 +1,18 @@
+(() => {
+  window.addEventListener('DOMContentLoaded', () => {
+    const inputs = document.querySelectorAll('input[type=number]');
+    inputs.forEach((input) => {
+      input.addEventListener('focus', (event) => {
+        const target = event.currentTarget;
+
+        target.type = 'text';
+        target.setSelectionRange(0, target.value.length);
+        target.type = 'number';
+      });
+    });
+  });
+})();
+
 if (!WebAssembly.instantiateStreaming) {
   WebAssembly.instantiateStreaming = async (resp, importObject) => {
     const source = await (await resp).arrayBuffer();
