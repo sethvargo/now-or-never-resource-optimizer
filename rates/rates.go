@@ -1,6 +1,7 @@
 package rates
 
 import (
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -98,59 +99,86 @@ type ExchangeRate struct {
 	V uint8 `json:"v"`
 }
 
+// RateTable represents the exchange rates.
+type RateTable struct {
+	rates []*ExchangeRate
+
+	shellModifier bool
+	toolModifier  bool
+}
+
+// MarshalJSON is a custom JSON marshaller for the rate table. It returns a map
+// of the resource constraint (as JSON) to the value.
+func (r *RateTable) MarshalJSON() ([]byte, error) {
+	m := make(map[string]uint8, len(r.rates))
+	for _, v := range r.rates {
+		h, err := json.Marshal(v.R)
+		if err != nil {
+			return nil, err
+		}
+		m[string(h)] = v.V
+	}
+
+	return json.Marshal(m)
+}
+
 // defaultRateTable is the default rate table.
-var defaultRateTable []*ExchangeRate = []*ExchangeRate{
-	{
-		R: &ResourceAlloc{D: 2, C: 2},
-		V: 14,
-	},
-	{
-		R: &ResourceAlloc{S: 1, T: 1, D: 1, C: 1},
-		V: 12,
-	},
-	{
-		R: &ResourceAlloc{C: 3},
-		V: 11,
-	},
-	{
-		R: &ResourceAlloc{S: 1, T: 1, D: 1},
-		V: 9,
-	},
-	{
-		R: &ResourceAlloc{T: 1, D: 2},
-		V: 9,
-	},
-	{
-		R: &ResourceAlloc{S: 1, T: 2},
-		V: 7,
-	},
-	{
-		R: &ResourceAlloc{S: 3},
-		V: 5,
-	},
-	{
-		R: &ResourceAlloc{C: 1},
-		V: 2,
-	},
-	{
-		R: &ResourceAlloc{D: 1},
-		V: 2,
-	},
-	{
-		R: &ResourceAlloc{T: 1},
-		V: 2,
-	},
-	{
-		R: &ResourceAlloc{S: 1},
-		V: 1,
+var defaultRateTable *RateTable = &RateTable{
+	rates: []*ExchangeRate{
+		{
+			R: &ResourceAlloc{D: 2, C: 2},
+			V: 14,
+		},
+		{
+			R: &ResourceAlloc{S: 1, T: 1, D: 1, C: 1},
+			V: 12,
+		},
+		{
+			R: &ResourceAlloc{C: 3},
+			V: 11,
+		},
+		{
+			R: &ResourceAlloc{S: 1, T: 1, D: 1},
+			V: 9,
+		},
+		{
+			R: &ResourceAlloc{T: 1, D: 2},
+			V: 9,
+		},
+		{
+			R: &ResourceAlloc{S: 1, T: 2},
+			V: 7,
+		},
+		{
+			R: &ResourceAlloc{S: 3},
+			V: 5,
+		},
+		{
+			R: &ResourceAlloc{C: 1},
+			V: 2,
+		},
+		{
+			R: &ResourceAlloc{D: 1},
+			V: 2,
+		},
+		{
+			R: &ResourceAlloc{T: 1},
+			V: 2,
+		},
+		{
+			R: &ResourceAlloc{S: 1},
+			V: 1,
+		},
 	},
 }
 
 // DefaultRateTable returns a copy of the default rate table.
-func DefaultRateTable() []*ExchangeRate {
-	rates := make([]*ExchangeRate, len(defaultRateTable))
-	for i, v := range defaultRateTable {
-		rates[i] = &ExchangeRate{
+func DefaultRateTable() *RateTable {
+	rateTable := &RateTable{
+		rates: make([]*ExchangeRate, len(defaultRateTable.rates)),
+	}
+	for i, v := range defaultRateTable.rates {
+		rateTable.rates[i] = &ExchangeRate{
 			R: &ResourceAlloc{
 				S: v.R.S,
 				T: v.R.T,
@@ -160,11 +188,71 @@ func DefaultRateTable() []*ExchangeRate {
 			V: v.V,
 		}
 	}
-	return rates
+	return rateTable
+}
+
+// SetShellModifier enables the shell modifier to the rate table.
+func (r *RateTable) SetShellModifier(enable bool) bool {
+	if enable {
+		if r.shellModifier {
+			// Already enabled
+			return false
+		}
+
+		// Enable it
+		r.shellModifier = true
+		r.rates[6].V = 8
+		return true
+	}
+
+	// Enabled but shouldn't be anymore
+	if r.shellModifier {
+		r.shellModifier = false
+		r.rates[6].V = 5
+		return true
+	}
+
+	// Not enabled and shouldn't be
+	return false
+}
+
+// SetToolModifier enables the tool modification rate table.
+func (r *RateTable) SetToolModifier(enable bool) bool {
+	if enable {
+		if r.toolModifier {
+			// Already enabled
+			return false
+		}
+
+		// Enable it
+		r.toolModifier = true
+		r.rates = append(r.rates, &ExchangeRate{
+			R: &ResourceAlloc{T: 3},
+			V: 10,
+		})
+		return true
+	}
+
+	// Enabled but shouldn't be anymore
+	if r.toolModifier {
+		r.toolModifier = false
+		r.rates = (r.rates)[:11]
+		return true
+	}
+
+	// Not enabled and shouldn't be
+	return false
 }
 
 // Cache represents a resource cache.
 type Cache map[uint32][]*Trade
+
+// Invalidate purges the cache.
+func (c Cache) Invalidate() {
+	for k := range c {
+		delete(c, k)
+	}
+}
 
 // Exchange does a default exchange with the default rate table and cache.
 func Exchange(hand *ResourceAlloc) []*Trade {
@@ -173,16 +261,20 @@ func Exchange(hand *ResourceAlloc) []*Trade {
 }
 
 // ExchangeWith calculates the exchange rate with the given rate table.
-func ExchangeWith(cache Cache, rateTable []*ExchangeRate, hand *ResourceAlloc) []*Trade {
+func ExchangeWith(cache Cache, rateTable *RateTable, hand *ResourceAlloc) []*Trade {
+	parent := make([]*Trade, 0)
+
+	if hand == nil {
+		return nil
+	}
+
 	// Check if we have already computed the optimal exchange here.
 	cached, ok := cache[hand.HashCode()]
 	if ok {
 		return cached
 	}
 
-	parent := make([]*Trade, 0)
-
-	for _, rate := range rateTable {
+	for _, rate := range rateTable.rates {
 		remaining, ok := hand.Sub(rate.R)
 		if !ok {
 			continue

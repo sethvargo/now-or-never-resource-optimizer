@@ -3,14 +3,23 @@
   <head>
     <meta charset="utf-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" property="apple-mobile-web-app-capable" content="yes">
 
     <title>Now or Never Resource Optimizer</title>
     <meta name="description" content="A web-based resource trade optimizer for Now or Never.">
     <meta name="author" content="Seth Vargo">
 
     <link rel="stylesheet" href="/assets/main.css">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/assets/favicon/site.webmanifest">
+    <link rel="mask-icon" href="/assets/favicon/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+
+    <link rel="canonical" href="https://analysisparalysis.app">
   </head>
 
   <body>
@@ -19,19 +28,29 @@
         <form id="form" method="POST">
           <div class="row">
             <input type="number" name="s" placeholder="0" min="0" max="99" inputmode="decimal">
-            <span class="icon icon-shell">
+            <span class="icon icon-shell"></span>
+            <label class="ps-2" for="sm">
+              <input type="checkbox" name="sm" id="sm" value="true" tabindex="-1">
+              Modify
+            </label>
           </div>
           <div class="row">
             <input type="number" name="t" placeholder="0" min="0" max="99" inputmode="decimal">
-            <span class="icon icon-tool">
+            <span class="icon icon-tool"></span>
+            <label class="ps-2" for="tm">
+              <input type="checkbox" name="tm" id="tm" value="true" tabindex="-1">
+              Modify
+            </label>
           </div>
           <div class="row">
             <input type="number" name="d" placeholder="0" min="0" max="99" inputmode="decimal">
-            <span class="icon icon-demon">
+            <span class="icon icon-demon"></span>
+            <div class="w-100"></div>
           </div>
           <div class="row">
             <input type="number" name="c" placeholder="0" min="0" max="99" inputmode="decimal">
-            <span class="icon icon-crystal">
+            <span class="icon icon-crystal"></span>
+            <div class="w-100"></div>
           </div>
           <div class="row">
             <input type="submit" value="Go!" />

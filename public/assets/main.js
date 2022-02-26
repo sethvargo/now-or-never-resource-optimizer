@@ -49,26 +49,30 @@ const main = async () => {
     for (const pair of new FormData(e.target)) {
       const val = pair[1];
       if (val) {
-        formData[pair[0]] = parseInt(val);
+        if (val === 'true') {
+          formData[pair[0]] = true;
+        } else {
+          formData[pair[0]] = parseInt(val);
+        }
       }
     }
 
     if (Object.keys(formData).length === 0) return;
 
     try {
-      const exchangeRates = JSON.parse(await rateTable());
-
-      const bestTrades = await bestTrade(JSON.stringify(formData));
-      const optimalTrades = JSON.parse(bestTrades);
-      if (optimalTrades.length < 1) {
-        throw new Error('No possible trades!');
+      const result = JSON.parse(await bestTrade(JSON.stringify(formData)));
+      const rateTable = result.r;
+      const optimalTrade = result.t;
+      if (!rateTable || !optimalTrade) {
+        throw new Error(`No possible trades!`);
       }
-      const optimalTrade = optimalTrades[0];
+
+      console.log(rateTable);
 
       // Sort optimal resources by their trade amount.
       const optimalTradeResources = optimalTrade.R.sort((a, b) => {
-        const rateA = exchangeRates[JSON.stringify(a)];
-        const rateB = exchangeRates[JSON.stringify(b)];
+        const rateA = rateTable[JSON.stringify(a)];
+        const rateB = rateTable[JSON.stringify(b)];
 
         if (rateA === rateB) return b.length - a.length;
 
@@ -91,7 +95,7 @@ const main = async () => {
               <tr>
                 <td align="right" width="100%">${toIcons(alloc)}</td>
                 <td>
-                  <span class="icon icon-coin">${exchangeRates[JSON.stringify(alloc)]}</span>
+                  <span class="icon icon-coin">${rateTable[JSON.stringify(alloc)]}</span>
                 </td>
               </tr>
             `;

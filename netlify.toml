@@ -5,6 +5,18 @@
   publish = "public/"
   command = "make build"
 
+[[redirects]]
+  from = "https://analysisparalysis.io/*"
+  to = "https://analysisparalysis.app/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://analysisparalysis.co/*"
+  to = "https://analysisparalysis.app/:splat"
+  status = 301
+  force = true
+
 [[headers]]
   for = "/*"
   [headers.values]

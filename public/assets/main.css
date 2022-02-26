@@ -67,6 +67,15 @@ input {
   text-align: center;
 }
 
+.w-100 {
+  width: 100%;
+  flex: 1;
+}
+
+.ps-2 {
+  padding-left: 2em;
+}
+
 .icon {
   display: inline-block;
   margin: 0.15em;
@@ -144,24 +153,33 @@ input {
 
 .inner input::-webkit-outer-spin-button,
 .inner input::-webkit-inner-spin-button {
+  -moz-appearance: none;
   -webkit-appearance: none;
+  appearance: none;
   margin: 0;
 }
 
 .inner input[type=number] {
   -moz-appearance: textfield;
+  -webkit-appearance: textfield;
+  appearance: textfield;
 }
 
-.inner input[type='submit'] {
+.inner input[type=checkbox] {
+  padding: 10px;
+}
+
+.inner input[type=submit] {
   width: 100%;
+  background: #eee;
 }
 
-.inner input[type='submit']:hover {
+.inner input[type=submit]:hover {
   background: #fff;
 }
 
-.inner input[type='submit']:active {
-  background: #aaa;
+.inner input[type=submit]:active {
+  background: #ddd;
 }
 
 .inner .row {
