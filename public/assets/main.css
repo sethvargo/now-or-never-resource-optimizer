@@ -135,15 +135,8 @@ input {
 .inner {
   max-height: 90vh;
   background: #cccecc;
-  border-radius: 0.5em;
   padding: 0 1em;
   overflow-y: scroll;
-}
-
-.inner input {
-  border: 1px solid #aaa;
-  border-radius: 0.5em;
-  font-size: 1em;
 }
 
 .inner input[type='number'] {
@@ -159,27 +152,14 @@ input {
   margin: 0;
 }
 
-.inner input[type=number] {
+.inner input[type='number'] {
   -moz-appearance: textfield;
   -webkit-appearance: textfield;
   appearance: textfield;
 }
 
-.inner input[type=checkbox] {
+.inner input[type='checkbox'] {
   padding: 10px;
-}
-
-.inner input[type=submit] {
-  width: 100%;
-  background: #eee;
-}
-
-.inner input[type=submit]:hover {
-  background: #fff;
-}
-
-.inner input[type=submit]:active {
-  background: #ddd;
 }
 
 .inner .row {
